@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>CSS creator example</title>
+</head>
+<body>
+    <p>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Earum, tempore, culpa, accusantium, omnis non numquam est quibusdam voluptates iusto eius ea quam nam optio fugit placeat iste ipsum ratione excepturi.
+    </p>
+    <form id="main">
+        <fieldset>
+            <div>
+                <label for="TextColor">Text Color</label>
+                <input type="color" id="TextColor" value="#FFFFFF">
+            </div>
+            <div>
+                <label for="BgColor">Background Color</label>
+                <input type="color" id="BgColor" value="#000000">
+            </div>
+            <div>
+                <label for="StyleEnabled">Style Enabled</label>
+                <input type="checkbox" id="StyleEnabled" checked>
+            </div>
+            <button type="submit">Apply</button>
+        </fieldset>
+    </form>
+    
+	<script type="text/javascript" src="css-creator.js"></script>
+    <script type="text/javascript">
+        var globalStyles = new CSSCreator().addToPage(),
+            form = document.forms['main'];
+
+        form['StyleEnabled'].onchange = function() {
+            if (this.checked) {
+                globalStyles.addToPage();
+            } else {
+                globalStyles.removeFromPage();
+            }
+        }
+        
+        form.onsubmit = function() {
+            var styles = new CSSCreator();
+            styles.addRules([
+                ['body', 
+                    ['color', form['TextColor'].value],
+                    ['background', form['BgColor'].value]    
+                ]
+            ]);
+            globalStyles.replace(styles);
+            
+            return false;
+        }
+        
+    </script>
+</body>
+</html>
