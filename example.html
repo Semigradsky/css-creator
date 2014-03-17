@@ -31,7 +31,7 @@
         var globalStyles = new CSSCreator().addToPage(),
             form = document.forms['main'];
 
-        form['StyleEnabled'].onchange = function() {
+        form['StyleEnabled'].onclick = function() {
             if (this.checked) {
                 globalStyles.addToPage();
             } else {

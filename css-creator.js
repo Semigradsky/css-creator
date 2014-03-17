@@ -18,7 +18,7 @@
         this.stylesheet = stylesheet || null;
         this.rules = [];
     };
-    root.CSSCreator.version = '0.0.1';
+    root.CSSCreator.version = '0.0.2';
 
     /**
      * Add the stylesheet to html page.
@@ -29,13 +29,16 @@
         }
 
         var stylesheet = document.createElement('style');
-        document.head.appendChild(stylesheet);
-        // Apparently some version of Safari needs the following line? I dunno.
-        stylesheet.appendChild(document.createTextNode(''));
+        document.getElementsByTagName('head')[0].appendChild(stylesheet);
+        
+        if (!stylesheet.styleSheet) { // not IE
+            // Apparently some version of Safari needs the following line? I dunno.
+            stylesheet.appendChild(document.createTextNode(''));
+        }
 
         this.stylesheet = stylesheet;
         if (this.stylesheet) {
-            addRulesToSheet(this.rules, this.stylesheet.sheet);
+            addRulesToSheet(this.rules, this.stylesheet.sheet || this.stylesheet.styleSheet /* IE */);
         }
         return this;
     };
@@ -48,7 +51,7 @@
             return this;
         }
 
-        document.head.removeChild(this.stylesheet);
+        document.getElementsByTagName('head')[0].removeChild(this.stylesheet);
         this.stylesheet = null;
         return this;
     };
@@ -87,16 +90,20 @@
             }
             for (var rl = decl.length; j < rl; j++) {
                 var rule = decl[j];
+                if (!rule[1]) { continue; }
+
                 rulesStr += rule[0] + ':' + rule[1] + (rule[2] ? ' !important' : '') + ';\n';
             }
-            rules.push({
-                selector: selector,
-                declarations: rulesStr
-            });
+            if (rulesStr) {
+                rules.push({
+                    selector: selector,
+                    declarations: rulesStr
+                });
+            }
         }
         this.rules = rules;
         if (this.stylesheet) {
-            addRulesToSheet(this.rules, this.stylesheet.sheet);
+            addRulesToSheet(this.rules, this.stylesheet.sheet || this.stylesheet.styleSheet /* IE */);
         }
         return this;
     };
@@ -108,7 +115,7 @@
         this.rules = [];
         
         if (this.stylesheet) {
-            removeRulesFromSheet(this.stylesheet.sheet);
+            removeRulesFromSheet(this.stylesheet.sheet || this.stylesheet.styleSheet /* IE */);
         }
 
         return this;
@@ -122,7 +129,7 @@
         this.clear();
         this.rules = creator.rules;
         if (this.stylesheet) {
-            addRulesToSheet(this.rules, this.stylesheet.sheet);
+            addRulesToSheet(this.rules, this.stylesheet.sheet || this.stylesheet.styleSheet /* IE */);
         }
     };
     
@@ -143,7 +150,7 @@
                 sheet.deleteRule(0);
             } else { /* IE */
                 sheet.removeRule();
-            }   
+            }
         }
     }
 

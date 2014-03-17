@@ -9,6 +9,10 @@ JS library for dynamically creating CSS on page.
 $ bower install css-creator
 ```
 
+## Supports
+
+Internet Explorer 8+
+
 ## Usage
 
 ```
