@@ -39,7 +39,8 @@
             }
         }
         
-        form.onsubmit = function() {
+        form.onsubmit = function(event) {
+            event && event.preventDefault && event.preventDefault();
             var styles = new CSSCreator();
             styles.addRules([
                 ['body', 

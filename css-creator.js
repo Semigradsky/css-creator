@@ -17,8 +17,9 @@
         };
         this.stylesheet = stylesheet || null;
         this.rules = [];
+        this.sylesheetId = 'CSSCreator_' + new Date().getTime();
     };
-    root.CSSCreator.version = '0.0.2';
+    root.CSSCreator.version = '0.0.3';
 
     /**
      * Add the stylesheet to html page.
@@ -28,17 +29,26 @@
             return this;
         }
 
+        var self = this;
         var stylesheet = document.createElement('style');
+        stylesheet.id = this.sylesheetId;
         document.getElementsByTagName('head')[0].appendChild(stylesheet);
-        
         if (!stylesheet.styleSheet) { // not IE
             // Apparently some version of Safari needs the following line? I dunno.
             stylesheet.appendChild(document.createTextNode(''));
         }
 
-        this.stylesheet = stylesheet;
+        for (var i = document.styleSheets.length - 1; i >= 0; i--) {
+            stylesheet = document.styleSheets.item(i);
+            var owner = stylesheet.ownerNode || stylesheet.owningElement /* IE */;
+            if (owner.id === self.sylesheetId) {
+                self.stylesheet = stylesheet;
+                break;
+            }
+        }
+
         if (this.stylesheet) {
-            addRulesToSheet(this.rules, this.stylesheet.sheet || this.stylesheet.styleSheet /* IE */);
+            addRulesToSheet(this.rules, this.stylesheet);
         }
         return this;
     };
@@ -51,7 +61,8 @@
             return this;
         }
 
-        document.getElementsByTagName('head')[0].removeChild(this.stylesheet);
+        var owner = this.stylesheet.ownerNode || this.stylesheet.owningElement /* IE */;
+        document.getElementsByTagName('head')[0].removeChild(owner);
         this.stylesheet = null;
         return this;
     };
@@ -103,7 +114,7 @@
         }
         this.rules = rules;
         if (this.stylesheet) {
-            addRulesToSheet(this.rules, this.stylesheet.sheet || this.stylesheet.styleSheet /* IE */);
+            addRulesToSheet(this.rules, this.stylesheet);
         }
         return this;
     };
@@ -115,7 +126,7 @@
         this.rules = [];
         
         if (this.stylesheet) {
-            removeRulesFromSheet(this.stylesheet.sheet || this.stylesheet.styleSheet /* IE */);
+            removeRulesFromSheet(this.stylesheet);
         }
 
         return this;
@@ -129,7 +140,7 @@
         this.clear();
         this.rules = creator.rules;
         if (this.stylesheet) {
-            addRulesToSheet(this.rules, this.stylesheet.sheet || this.stylesheet.styleSheet /* IE */);
+            addRulesToSheet(this.rules, this.stylesheet);
         }
     };
     
@@ -145,7 +156,8 @@
     }
     
     function removeRulesFromSheet(sheet) {
-        for (var i = 0, l = sheet.rules.length; i < l; i++) {
+        var rules = sheet.cssRules || sheet.rules;
+        for (var i = 0, l = rules.length; i < l; i++) {
             if (sheet.deleteRule) {
                 sheet.deleteRule(0);
             } else { /* IE */
